@@ -215,7 +215,7 @@ class CQLObject {
         foreach ($this->modifiers as $mod) {
             $txt .= $mod->toXCQL($depth + 1);
         }
-        $txt .= "$space<modifiers>\n";
+        $txt .= "$space</modifiers>\n";
         return $txt;
     }
 

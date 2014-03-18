@@ -1,0 +1,32 @@
+Triple: 
+  Triple: 
+    SearchClause: 
+      Index: dc info:srw/cql-context-set/1/dc-v1.1 . a
+      Relation: foo . b
+        ModifierClause: 
+          type: 1
+        ModifierClause: 3
+          type: 2
+          comparison: =
+          value: 3
+      Term: c
+    Boolean: and
+      ModifierClause: 5
+        type: 4
+        comparison: >
+        value: 5
+    SearchClause: 
+      Index: cql info:srw/cql-context-set/1/cql-v1.1 . d
+      Relation: e
+      Term: f
+  Boolean: or
+  SearchClause: 
+    Index: rec info:srw/cql-context-set/2/rec-1.1 . g
+    Relation: h
+    Term: i
+  sortBy:
+    Index: X1
+  ModifierClause: 
+    type: b2
+ 
+    Index: X2

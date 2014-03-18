@@ -1,0 +1,1 @@
+((dc.a foo.b/1/2=3 "c"  AND/4>5 cql.d e "f" ) OR rec.g h "i" ) sortBy X1/b2 X2 
