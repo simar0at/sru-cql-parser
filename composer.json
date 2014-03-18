@@ -1,0 +1,28 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://simar0at.github.io/composer-repos/"
+        }
+    ],
+    "name": "rsanderson/CQLParser",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Robert Sanderson",
+            "email": "R.D.Sanderson@csc.liv.ac.uk",
+            "homepage": "http://cgi.csc.liv.ac.uk/~azaroth/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "version": "0.8.0",
+    "autoload": {
+        "psr-4": {
+            "rsanderson\\CQLParser\\": "src",
+            "rsanderson\\CQLParser\\Tests\\": "test"            
+        }
+    }
+}
