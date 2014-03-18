@@ -383,7 +383,14 @@ class Triple extends Prefixable {
 
     function toCQL() {
         $prefs = $this->prefs_toCQL();
-        return "$prefs(" . $this->leftOperand->toCQL() . " " . $this->boolean->toCQL() . " " . $this->rightOperand->toCQL() . ")";
+        $ret = "$prefs(" . $this->leftOperand->toCQL() . " " . $this->boolean->toCQL() . " " . $this->rightOperand->toCQL() . ")";
+        if (is_array($this->sortKeys)) {
+            $ret .= ' sortBy ';
+            foreach ($this->sortKeys as $sortKey) {
+                $ret .= $sortKey->toCQL() . ' ';
+            }
+        }
+        return $ret;
     }
 
     function toXCQL($depth = 0) {
@@ -502,7 +509,16 @@ class Index extends Prefixed {
 
     function toXCQL($depth = 0) {
         $space = str_repeat("  ", $depth);
-        return "$space<index>" . htmlentities($this->toCQL()) . "</index>\n";
+        $txt = "$space<index>";
+        $txt .= htmlentities($this->value);
+        if ($this->modifiers) {
+            $txt .= "\n";
+            $txt .= $this->mods_toXCQL($depth + 1);
+            $txt .= "$space</index>\n";
+        } else {
+            $txt .= "</index>\n";
+        }
+        return $txt; 
     }
 
 }
@@ -646,21 +662,29 @@ class SortKey extends CQLObject {
 
     var $index;
 
-    function __construct($i) {
+    function __construct($i, $m) {
         $this->index = $i;
+        $this->index->modifiers = $m;
     }
 
-    function add_modifiers($mods) {
-        $this->modifiers = $mods;
-        foreach ($mods as $m) {
-            $m->parentNode = $this;
-        }
-    }
+//    function add_modifiers($mods) {
+//        $this->modifiers = $mods;
+//        foreach ($mods as $m) {
+//            $m->parentNode = $this;
+//        }
+//    }
 
     function toTxt($depth = 0) {
-        return $this->index->toTxt();
+        return $this->index->toTxt($depth);
     }
 
+    function toXCQL($depth = 0) {
+        return $this->index->toXCQL($depth);
+    }
+    
+    function toCQL($depth = 0) {
+        return $this->index->toCQL($depth);
+    }
 }
 
 class CQLParser {

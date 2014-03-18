@@ -20,7 +20,7 @@ require "cql.php";
     <body>
         <?php
 
-        function &parse($query) {
+        function parse($query) {
             $p = new CQLParser($query);
             $o = $p->query();
             if ($p->get_current_token() && get_class($o) != "diagnostic") {
@@ -31,7 +31,7 @@ require "cql.php";
         }
 
         $q = "(dc.a foo.b/1/2=3 c and/4>5 cql.d e f) or rec.g h i sortBy X1/b2 X2";
-        $o = &parse($q);
+        $o = parse($q);
 
         echo "<hr>";
         echo htmlentities($q);
