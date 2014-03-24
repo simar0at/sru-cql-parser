@@ -85,6 +85,9 @@ class SimpleLex {
                 } elseif (strpos("<>", $nextchar) > -1) {
                     $this->token = $nextchar;
                     $this->state = '<';
+                } elseif (strpos("=", $nextchar) > -1) {
+                    $this->token = $nextchar;
+                    $this->state = '=';
                 } else {
                     $this->token = $nextchar;
                     $cont = 0;
@@ -94,6 +97,23 @@ class SimpleLex {
                     $this->token .= $nextchar;
                     $this->state = ' ';
                 } elseif ($this->token == "<" && strpos(">=", $nextchar) > -1) {
+                    $this->token .= $nextchar;
+                    $this->state = ' ';
+                } elseif ($nextchar == "/") {
+                    $this->state = " ";
+                    $this->position -= 1;
+                } elseif ($is_word) {
+                    $this->state = "a";
+                    $this->position -= 1;
+                } elseif ($is_quote) {
+                    $this->state = $nextchar;
+                    $this->position -= 1;
+                } else {
+                    $this->state = ' ';
+                }
+                $cont = 0;
+            } elseif ($this->state == "=") {
+                if ($this->token == "=" && $nextchar == "=") {
                     $this->token .= $nextchar;
                     $this->state = ' ';
                 } elseif ($nextchar == "/") {
@@ -554,7 +574,7 @@ class Term extends CQLObject {
 
     function __construct($data) {
         if ($data{0} == '"' && $data{strlen($data) - 1} == '"') {
-            $data = substr($data, 1, strlen($identifier) - 1);
+            $data = substr($data, 1, strlen($data) - 2);
         }
         $this->value = $data;
     }
@@ -704,7 +724,7 @@ class CQLParser {
     function __construct($data) {
         $this->serverChoiceRelation = "=";
         $this->serverChoiceIndex = "cql.serverChoice";
-        $this->order = array("=", ">", ">=", "<", "<=", "<>");
+        $this->order = array("=", ">", ">=", "<", "<=", "<>", "==");
         $this->separator = "/";
         $this->booleans = array("and", "or", "not", "prox");
         $this->sortWord = "sortby";

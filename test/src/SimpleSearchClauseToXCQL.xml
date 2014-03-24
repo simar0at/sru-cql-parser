@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<searchClause xmlns="http://www.loc.gov/zing/cql/xcql/">
+  <index>imprintDate</index>
+  <relation>
+    <value>==</value>
+  </relation>
+  <term>2010</term>
+</searchClause>

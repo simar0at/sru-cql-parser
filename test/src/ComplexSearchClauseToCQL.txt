@@ -1,0 +1,1 @@
+(author == "Louis, Samia"  AND imprintDate == "2010" )

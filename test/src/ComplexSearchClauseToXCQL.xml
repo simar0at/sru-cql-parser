@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<triple xmlns="http://www.loc.gov/zing/cql/xcql/">
+  <boolean>
+    <value>and</value>
+  </boolean>
+  <leftOperand>
+    <searchClause>
+      <index>author</index>
+      <relation>
+        <value>==</value>
+      </relation>
+      <term>Louis, Samia</term>
+    </searchClause>
+  </leftOperand>
+  <rightOperand>
+    <searchClause>
+      <index>imprintDate</index>
+      <relation>
+        <value>==</value>
+      </relation>
+      <term>2010</term>
+    </searchClause>
+  </rightOperand>
+</triple>
