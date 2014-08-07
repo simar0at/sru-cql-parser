@@ -13,12 +13,18 @@
             "email": "R.D.Sanderson@csc.liv.ac.uk",
             "homepage": "http://cgi.csc.liv.ac.uk/~azaroth/",
             "role": "Developer"
-        }
-    ],
+        },
+        {
+            "name": "Omar Siam",
+            "email": "Omar.Siam@oeaw.ac.at",
+            "homepage": "about:blank",
+            "role": "Developer"
+        }    
+        ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.4.30"
     },
-    "version": "0.8.5",
+    "version": "0.8.6",
     "autoload": {
         "psr-4": {
             "rsanderson\\CQLParser\\": "src",
