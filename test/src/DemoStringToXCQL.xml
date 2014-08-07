@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<triple xmlns="http://www.loc.gov/zing/cql/xcql/">
+<triple xmlns="http://www.loc.gov/zing/cql/xcql/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.loc.gov/zing/cql/xcql/ http://www.loc.gov/standards/sru/xmlFiles/xcql.xsd">
   <boolean>
     <value>or</value>
   </boolean>
@@ -16,7 +18,13 @@
         </modifiers>
       </boolean>
       <leftOperand>
-        <searchClause>
+          <prefixes>
+            <prefix>
+              <name>dc</name>
+              <identifier>info:srw/cql-context-set/1/dc-v1.1</identifier>
+            </prefix>
+          </prefixes>
+          <searchClause>
           <index>a</index>
           <relation>
             <value>b</value>
@@ -35,6 +43,12 @@
         </searchClause>
       </leftOperand>
       <rightOperand>
+        <prefixes>
+          <prefix>
+            <name>cql</name>
+            <identifier>info:srw/cql-context-set/1/cql-v1.1</identifier>
+          </prefix>
+        </prefixes>
         <searchClause>
           <index>d</index>
           <relation>
@@ -46,6 +60,12 @@
     </triple>
   </leftOperand>
   <rightOperand>
+    <prefixes>
+      <prefix>
+        <name>rec</name>
+        <identifier>info:srw/cql-context-set/2/rec-1.1</identifier>
+      </prefix>
+    </prefixes>
     <searchClause>
       <index>g</index>
       <relation>

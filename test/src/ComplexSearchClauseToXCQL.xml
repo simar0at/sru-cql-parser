@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<triple xmlns="http://www.loc.gov/zing/cql/xcql/">
+<triple xmlns="http://www.loc.gov/zing/cql/xcql/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.loc.gov/zing/cql/xcql/ http://www.loc.gov/standards/sru/xmlFiles/xcql.xsd">
   <boolean>
     <value>and</value>
   </boolean>

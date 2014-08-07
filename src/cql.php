@@ -20,7 +20,8 @@
 
 namespace rsanderson\CQLParser;
 
-$XCQLNamespace = "http://www.loc.gov/zing/cql/xcql/";
+$XCQLNamespace = 'http://www.loc.gov/zing/cql/xcql/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.loc.gov/zing/cql/xcql/ http://www.loc.gov/standards/sru/xmlFiles/xcql.xsd';
 
 
 /* The following is derived from Python's ShLex */
@@ -35,9 +36,11 @@ class SimpleLex {
     var $token;
 
     function __construct($data) {
+        mb_internal_encoding('UTF-8');
+        mb_regex_encoding('UTF-8');
         $this->data = $data;
-        $this->datalen = strlen($data);
-        $this->wordchars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_!@#$%^&*-+{}[];,.?|~`:\\'";
+        $this->datalen = mb_strlen($data);
+        $this->reWordchars = "/[\\pL\\pN_!@#$%^&*-+{}\\[\\];,.?|~`:\\\\']/";
         $this->whitespace = " \t\n";
         $this->quotes = '"';
 
@@ -64,10 +67,10 @@ class SimpleLex {
                 return trim($this->token);
             }
 
-            $nextchar = $this->data[$this->position];
-            $is_ws = strpos($this->whitespace, $nextchar) > -1 ? 1 : 0;
-            $is_word = strpos($this->wordchars, $nextchar) > -1 ? 1 : 0;
-            $is_quote = strpos($this->quotes, $nextchar) > -1 ? 1 : 0;
+            $nextchar = mb_substr($this->data, $this->position, 1);
+            $is_ws = strpos($this->whitespace, $nextchar) > -1 ? true : false;
+            $is_word = preg_match($this->reWordchars, $nextchar) === 1 ? true : false;
+            $is_quote = strpos($this->quotes, $nextchar) > -1 ? true : false;
 
             if ($this->state == ' ') {
                 if ($is_ws) {
@@ -132,14 +135,14 @@ class SimpleLex {
             } elseif (strpos($this->quotes, $this->state) > -1) {
                 $this->token .= $nextchar;
                 /* allow escape */
-                if ($nextchar == $this->state && substr($this->token, -2, 1) != "\\") {
+                if ($nextchar == $this->state && mb_substr($this->token, -2, 1) != "\\") {
                     $this->state = ' ';
                     $cont = 0;
                 }
             } elseif ($this->state == 'a') {
                 if ($is_ws) {
                     $this->state = ' ';
-                    if (strlen($this->token) > 0) {
+                    if (mb_strlen($this->token) > 0) {
                         $cont = 0;
                     } else {
                         continue;
@@ -270,7 +273,10 @@ class CQLObject {
 
 class Prefixable extends CQLObject {
 
-    var $prefixes;
+    /**
+     * @var array
+     */
+    protected $prefixes = null;
 
     function add_prefix($p, $uri) {
         $this->prefixes[$p] = $uri;
@@ -311,9 +317,9 @@ class Prefixable extends CQLObject {
             $val = $this->prefixes[$key];
             $txt .= "$space  <prefix>\n";
             if ($key) {
-                $txt .= "$space    <name>" . htmlentities($key) . "</name>\n";
+                $txt .= "$space    <name>" . $key . "</name>\n";
             }
-            $txt .= "$space    <identifier>" . htmlentities($val) . "</identifier>\n";
+            $txt .= "$space    <identifier>" . $val . "</identifier>\n";
             $txt .= "$space  </prefix>\n";
         }
         $txt .= "$space</prefixes>\n";
@@ -324,8 +330,14 @@ class Prefixable extends CQLObject {
 
 class Prefixed extends CQLObject {
 
-    var $prefix;
-    var $uri;
+    /**
+     * @var string
+     */
+    public $prefix;
+    /**
+     * @var string
+     */
+    protected $uri;
 
     function split_value() {
         $c = substr_count($this->value, '.');
@@ -463,12 +475,24 @@ class Triple extends Prefixable {
 
 class SearchClause extends Prefixable {
 
-    var $index;
-    var $relation;
-    var $term;
-    var $sortKeys;
+    /**
+     * @var Index 
+     */
+    public $index;
+    /**
+     * @var Relation 
+     */
+    protected $relation;
+    /**
+     * @var Term 
+     */    
+    protected $term;
+    /**
+     * @var array(SortKey) 
+     */
+    protected $sortKeys;
 
-    function __construct($i, $r, $t) {
+    function __construct(Index $i, Relation $r, Term $t) {
         $this->parentNode = null;
         $this->sortKeys = null;
         $this->index = $i;
@@ -484,13 +508,19 @@ class SearchClause extends Prefixable {
     function toXCQL($depth = 0) {
         global $XCQLNamespace;
         $space = str_repeat("  ", $depth);
+        $txt = '';
         if ($depth == 0) {
-            $txt = '<searchClause xmlns="' . $XCQLNamespace . "\">\n";
+            $txt .= '<searchClause xmlns="' . $XCQLNamespace . "\">\n";
         } else {
-            $txt = "$space<searchClause>\n";
-        }
-        if ($this->prefixes) {
-            $txt .= $this->prefs_toXCQL();
+            $old_prefixes = $this->prefixes;
+            if (!isset($this->prefixes) && isset($this->index->prefix)) {
+                $this->add_prefix($this->index->prefix, $this->resolve_prefix($this->index->prefix));
+            }
+            if ($this->prefixes) {
+                $txt .= $this->prefs_toXCQL();
+            }
+            $this->prefixes = $old_prefixes;
+            $txt .= "$space<searchClause>\n";
         }
 
         $txt .= $this->index->toXCQL($depth + 1);
@@ -530,7 +560,7 @@ class Index extends Prefixed {
     function toXCQL($depth = 0) {
         $space = str_repeat("  ", $depth);
         $txt = "$space<index>";
-        $txt .= htmlentities($this->value);
+        $txt .= $this->value;
         if ($this->modifiers) {
             $txt .= "\n";
             $txt .= $this->mods_toXCQL($depth + 1);
@@ -581,7 +611,7 @@ class Term extends CQLObject {
 
     function toXCQL($depth = 0) {
         $space = str_repeat("  ", $depth);
-        return "$space<term>" . htmlentities($this->value) . "</term>\n";
+        return "$space<term>" . $this->value . "</term>\n";
     }
 
 }
@@ -631,7 +661,7 @@ class ModifierType extends Prefixed {
 
     function toXCQL($depth = 0) {
         $space = str_repeat("  ", $depth);
-        return "$space<type>" . htmlentities($this->toCQL()) . "</type>\n";
+        return "$space<type>" . $this->toCQL() . "</type>\n";
     }
 
 }
@@ -657,8 +687,8 @@ class ModifierClause extends CQLObject {
         $txt = "$space<modifier>\n";
         $txt .= $this->type->toXCQL($depth + 1);
         if ($this->value) {
-            $txt .= "$space  <comparison>" . htmlentities($this->comparison) . "</comparison>\n";
-            $txt .= "$space  <value>" . htmlentities($this->value) . "</value>\n";
+            $txt .= "$space  <comparison>" . $this->comparison . "</comparison>\n";
+            $txt .= "$space  <value>" . $this->value . "</value>\n";
         }
         $txt .= "$space</modifier>\n";
         return $txt;

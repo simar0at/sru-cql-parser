@@ -1,0 +1,1 @@
+(arz_eng_006.author == "Karlheinz, Mörth"  AND (arz_eng_006.entry = "ʕēn"  OR arz_eng_006.entry = "مية" ))
