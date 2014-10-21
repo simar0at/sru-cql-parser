@@ -39,7 +39,7 @@ class CQLParserSimpleSearchClauseTest extends \PHPUnit_Framework_TestCase {
     public function testToCQL() {
         $out = $this->object->query();
         $this->assertInstanceOf('\rsanderson\CQLParser\SearchClause', $out);
-        $out->config = $this->config;
+        $out->set_config($this->config);
         $this->assertStringEqualsFile('src/SimpleSearchClauseToCQL.txt', $out->toCQL());
     }
 
@@ -50,7 +50,7 @@ class CQLParserSimpleSearchClauseTest extends \PHPUnit_Framework_TestCase {
     public function testToXCQL() {
         $out = $this->object->query();
         $this->assertInstanceOf('\rsanderson\CQLParser\SearchClause', $out);
-        $out->config = $this->config;
+        $out->set_config($this->config);
         $this->assertXmlStringEqualsXmlFile('src/SimpleSearchClauseToXCQL.xml', $out->toXCQL());
     }
 
@@ -60,7 +60,7 @@ class CQLParserSimpleSearchClauseTest extends \PHPUnit_Framework_TestCase {
      */
     public function testToTxt() {
 //        $out = $this->object->query();
-//        $out->config = $this->config;
+//        $out->set_config($this->config);
 //        $this->assertStringEqualsFile('DemoStringToTxt.txt', $out->toTxt());
         $this->markTestSkipped('Compare to file fails for unknown reason.');
     }

@@ -39,7 +39,7 @@ class CQLComplexSearchClauseTest extends \PHPUnit_Framework_TestCase {
     public function testToCQL() {
         $out = $this->object->query();
         $this->assertInstanceOf('\rsanderson\CQLParser\Triple', $out);
-        $out->config = $this->config;
+        $out->set_config($this->config);
         $this->assertStringEqualsFile('src/ComplexSearchClauseToCQL.txt', $out->toCQL());
     }
 
@@ -50,7 +50,7 @@ class CQLComplexSearchClauseTest extends \PHPUnit_Framework_TestCase {
     public function testToXCQL() {
         $out = $this->object->query();
         $this->assertInstanceOf('\rsanderson\CQLParser\Triple', $out);
-        $out->config = $this->config;
+        $out->set_config($this->config);
         $this->assertXmlStringEqualsXmlFile('src/ComplexSearchClauseToXCQL.xml', $out->toXCQL());
     }
 
@@ -60,7 +60,7 @@ class CQLComplexSearchClauseTest extends \PHPUnit_Framework_TestCase {
      */
     public function testToTxt() {
 //        $out = $this->object->query();
-//        $out->config = $this->config;
+//        $out->set_config($this->config);
 //        $this->assertStringEqualsFile('DemoStringToTxt.txt', $out->toTxt());
         $this->markTestSkipped('Compare to file fails for unknown reason.');
     }

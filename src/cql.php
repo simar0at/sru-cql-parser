@@ -28,12 +28,11 @@ xsi:schemaLocation="http://www.loc.gov/zing/cql/xcql/ http://www.loc.gov/standar
 
 class SimpleLex {
 
-    var $data;
-    var $wordchars;
-    var $whitespace;
-    var $quotes;
-    var $state;
-    var $token;
+    private $data;
+    private $whitespace;
+    private $quotes;
+    private $state;
+    private $token;
 
     function __construct($data) {
         mb_internal_encoding('UTF-8');
@@ -173,9 +172,9 @@ class SimpleLex {
 
 class Diagnostic {
 
-    var $uri;
-    var $message;
-    var $details;
+    protected $uri;
+    protected $message;
+    protected $details;
 
     function __construct($message, $type = 10, $details = "") {
         $this->message = $message;
@@ -196,12 +195,17 @@ class Diagnostic {
 
 }
 
+abstract class CQLVisitor {
+    public abstract function onCQLPrefixes(array $prefixes);
+    public abstract function onCQLPart(CQLObject $data);
+}
+
 class CQLObject {
 
-    var $value;
-    var $modifiers;
-    var $parentNode;
-    var $config;
+    protected $value;
+    protected $modifiers;
+    protected $parentNode;
+    protected $config;
 
     function set_config($c) {
         $this->config = $c;
@@ -218,6 +222,15 @@ class CQLObject {
         }
     }
 
+    public function to(CQLVisitor $v) {
+        if (count($this->modifiers) > 0) {
+            foreach ($this->modifiers as $mod) {
+               $mod->to($v); 
+            }   
+        }
+        $v->onCQLPart($this);
+    }
+    
     function toCQL() {
         $txt = $this->value;
         if (count($this->modifiers) > 0) {
@@ -295,6 +308,13 @@ class Prefixable extends CQLObject {
         }
     }
 
+    public function to(CQLVisitor $v) {
+        if ($this->prefixes) {
+            $v->onCQLPrefixes($this->prefixes);
+        }
+        parent::to($v);
+    }
+    
     function prefs_toCQL() {
         $txt = "";
         if ($this->prefixes) {
@@ -411,8 +431,26 @@ class Triple extends Prefixable {
         $this->leftOperand = $left;
         $this->rightOperand = $right;
         $this->boolean = $bool;
+        $left->parentNode = $this;
+        $right->parentNode = $this;
+        $bool->parentNode = $this;
     }
 
+    public function to(CQLVisitor $v) {
+        parent::to($v);
+        $v->onCQLPart($this->leftOperand);
+        $this->leftOperand->to($v);
+        $v->onCQLPart($this->boolean);
+        $this->boolean->to($v);
+        $v->onCQLPart($this->rightOperand);
+        $this->rightOperand->to($v);
+        if (isset($this->sortKeys)) {
+            foreach ($this->sortKeys as $sortKey) {
+                $v->onCQLPart($sortKey);
+            }
+        }
+    }
+    
     function toCQL() {
         $prefs = $this->prefs_toCQL();
         $ret = "$prefs(" . $this->leftOperand->toCQL() . " " . $this->boolean->toCQL() . " " . $this->rightOperand->toCQL() . ")";
@@ -498,6 +536,9 @@ class SearchClause extends Prefixable {
         $this->index = $i;
         $this->relation = $r;
         $this->term = $t;
+        $i->parentNode = $this;
+        $r->parentNode = $this;
+        $t->parentNode = $this;
     }
 
     function toCQL() {
@@ -809,9 +850,6 @@ class CQLParser {
                     return $this->diagnostic;
                 }
                 $triple = new Triple($left, $right, $bool);
-                $left->parentNode = $triple;
-                $right->parentNode = $triple;
-                $bool->parentNode = $triple;
                 $left = $triple;
             }
         }
@@ -877,9 +915,6 @@ class CQLParser {
             return null;
         }
         $sc = new SearchClause($index, $rel, $term);
-        $index->parentNode = $sc;
-        $rel->parentNode = $sc;
-        $term->parentNode = $sc;
         return $sc;
     }
 
